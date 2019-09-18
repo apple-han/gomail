@@ -13,4 +13,4 @@
     make build
     make docker
     docker-compose -f docker-compose.yml up -d
-### 本源码视频教程地址（https://study.163.com/course/courseMain.htm?courseId=1209482821）
+### 本源码视频教程地址（https://study.163.com/course/courseMain.htm?courseId=1209482821&share=2&shareId=400000000606033）
