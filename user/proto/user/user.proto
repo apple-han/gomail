@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package go.micro.srv.user;
+
+service User {
+	rpc Create(CreateRequest) returns (CreateResult) {}
+	rpc Update(UpdateRequest) returns (UpdateResult) {}
+	rpc Delete(DeleteRequest) returns (DeleteResult) {}
+	rpc Read(ReadRequest) returns (ReadResult) {}
+}
+
+message CreateRequest {
+	Info user = 1;
+}
+
+message CreateResult {
+	string id = 1;	
+}
+
+message UpdateRequest{
+	string id = 1;
+	string username = 2;
+}
+message UpdateResult{}
+
+message ReadRequest{
+	string id = 1;
+}
+message ReadResult{
+	Info user = 1;
+}
+
+message DeleteRequest{
+	string id = 1;
+}
+message DeleteResult{}
+
+message Info{
+	string id = 1;
+	string username = 2;
+	string secret = 3;
+	string phone  = 4;
+	string role_name = 5;
+	string created = 6;
+	string updated = 7;
+}

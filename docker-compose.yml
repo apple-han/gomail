@@ -1,0 +1,125 @@
+version: '3'
+
+services:
+  consul-bootstrap:
+    image: consul:latest
+    ports:
+      - "8300:8300"
+      - "8301:8301"
+      - "8301:8301/udp"
+      - "8302:8302"
+      - "8302:8302/udp"
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:8600"
+    command: "agent -server -bootstrap -ui -client 0.0.0.0"
+    networks:
+      dev:
+    logging:
+      options:
+        max-size: 50m
+
+  redis:
+    image: redis:alpine
+    networks:
+      - dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+    command: "redis-server"
+    logging:
+      options:
+        max-size: 50m
+
+  api: &api
+    image: microhq/micro:latest
+    networks:
+      - dev
+    depends_on:
+      - consul-bootstrap
+    ports:
+      - "8080:8080"
+    command: --registry=consul --registry_address=consul-bootstrap:8500 --enable_stats --register_interval=5 --register_ttl=10 api
+  
+  mysql:
+    image: mysql:5.6
+    networks:
+      - default
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql/:/etc/mysql/conf.d
+    environment:
+      - MYSQL_DATABASE=root
+      - MYSQL_ROOT_PASSWORD=123456
+
+  web:
+    image: microhq/micro:latest
+    networks:
+      - dev
+    depends_on:
+      - consul-bootstrap
+    ports:
+      - "8082:8082"
+    command: --registry=consul --registry_address=consul-bootstrap:8500 --register_interval=5 --register_ttl=10 web
+
+  srv:
+    <<: *api
+    ports:
+      - "8083:8080"
+    command: --registry=consul --registry_address=consul-bootstrap:8500 --register_interval=5 --register_ttl=10 api --namespace=go.micro.srv --handler=rpc
+
+  proxy:
+    <<: *api
+    ports:
+      - "8081:8081"
+    command: --registry=consul --registry_address=consul-bootstrap:8500 --register_interval=5 --register_ttl=10 proxy
+  
+  config-srv:
+    image: config-srv:latest
+    networks:
+      - default
+    volumes:
+      - ./pkg/configuration_center/server/conf:/data
+    ports:
+      - "9600:9600"
+    restart: always
+    logging:
+      options:
+        max-size: 50m
+        
+  email-srv:
+    image: email-srv:latest
+    networks:
+      - dev
+    depends_on:
+      - consul-bootstrap
+      - redis
+    restart: always
+    command: --registry=consul --registry_address=consul-bootstrap:8500
+    logging:
+      options:
+        max-size: 50m
+
+  user-srv:
+    image: user-srv:latest
+    networks:
+      - dev
+    depends_on:
+      - consul-bootstrap
+      - mysql
+    restart: always
+    command: --registry=consul --registry_address=consul-bootstrap:8500
+    logging:
+      options:
+        max-size: 50m
+
+networks:
+  dev:
+    ipam:
+      driver: default
+      config:
+          - subnet: 172.29.0.0/16
+

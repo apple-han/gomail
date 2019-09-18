@@ -1,0 +1,24 @@
+whisper:
+  redis:
+    RedisHost: 192.168.1.107:6379
+    RedisDB: 0
+  logging:
+    LogSavePath : logs/
+    LogSaveName : log
+    LogFileExt : log
+    TimeFormat : 20060102
+    RuntimeRootPath : runtime/
+  email:
+    Address : applehango@163.com
+    ToAddress : 759330057@qq.com
+    Username : 程序小样
+    Password : zh123456
+    Server : smtp.163.com
+    Port : 465
+  db:
+    user:
+      enabled: true
+      url: root:123456@(192.168.1.107:3308)/users
+      maxIdleConnection: 100
+      maxOpenConnection: 130
+  
