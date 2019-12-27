@@ -1,4 +1,4 @@
-# goemail
+# gomail
 相信这个项目，对于刚入微服务开发与web的你来说，帮助是巨大的。
 ##### 项目开始之前，你需要申请一个163的smpt的账号，密码。
 ### Install from docker 
